@@ -1,4 +1,3 @@
 #!/usr/bin/env bash
-
-scp $(pwd)/bin/backup-opnsense ${REMOTE_USER}@${REMOTE_SERVER}:/usr/local/bin/backup-opnsense
-ssh ${REMOTE_USER}@${REMOTE_SERVER} /bin/chmod +x /usr/local/bin/backup-opnsense
+scp -o LogLevel=quiet ./bin/backup-opnsense ${REMOTE_USER}@${REMOTE_SERVER}:/usr/local/bin/backup-opnsense
+ssh -o LogLevel=quiet ${REMOTE_USER}@${REMOTE_SERVER} "/bin/chmod +x /usr/local/bin/backup-opnsense"
