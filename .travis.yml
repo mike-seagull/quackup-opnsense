@@ -19,9 +19,9 @@ install:
 - $SH "rm -rf /travis/*"
 script: skip
 after_failure:
-- curl -X POST -d 'message="home-api-node build failed"' https://${HOME_API_USER}:${HOME_API_AUTH}@${HOME_API_SERVER}/api/pushover
+- curl -X POST -d 'message="backup-opnsense build failed"' https://${HOME_API_USER}:${HOME_API_AUTH}@${HOME_API_SERVER}/api/pushover
 after_success:
-- curl -X POST -d 'message="home-api-node build successful"' https://${HOME_API_USER}:${HOME_API_AUTH}@${HOME_API_SERVER}/api/pushover
+- curl -X POST -d 'message="backup-opnsense build successful"' https://${HOME_API_USER}:${HOME_API_AUTH}@${HOME_API_SERVER}/api/pushover
 before_deploy:
 # unpack secrets
 - openssl enc -aes-256-cbc -iv "${SSL_IV}" -K "${SSL_KEY}" -out secrets.tar -in .travis/secrets.enc -d
@@ -38,7 +38,7 @@ before_deploy:
 - ssh-keyscan -H $REMOTE_SERVER > ~/.ssh/known_hosts
 # build binary
 - $SH "go get -v github.com/mike-seagull/backup-opnsense"
-- $SH "env GOOS=freebsd GOARCH=amd64 go build github.com/mike-seagull/backup-opnsense -o /travis/bin/backup-opnsense"
+- $SH "env GOOS=freebsd GOARCH=amd64 go build -v -a -o $GOPATH/bin/backup-opnsense github.com/mike-seagull/backup-opnsense"
 deploy:
   skip_cleanup: true
   provider: script
