@@ -1,0 +1,47 @@
+language: go
+sudo: required
+services:
+- docker
+env:
+- SH="docker exec -t backup-opnsense bash -c"
+before_install:
+- docker run --detach --name backup-opnsense -v $(pwd):/travis -w /travis -e GOPATH='/travis' golang:1.11-stretch tail -f /dev/null
+- docker ps
+addons:
+  apt:
+    update: true
+    packages:
+    - openvpn # need for deployment
+    - psmisc  # need for killall
+  on:
+    branch: master
+install:
+- $SH "rm -rf /travis/*"
+script: skip
+after_failure:
+- curl -X POST -d 'message="home-api-node build failed"' https://${HOME_API_USER}:${HOME_API_AUTH}@${HOME_API_SERVER}/api/pushover
+after_success:
+- curl -X POST -d 'message="home-api-node build successful"' https://${HOME_API_USER}:${HOME_API_AUTH}@${HOME_API_SERVER}/api/pushover
+before_deploy:
+# unpack secrets
+- openssl enc -aes-256-cbc -iv "${SSL_IV}" -K "${SSL_KEY}" -out secrets.tar -in .travis/secrets.enc -d
+- tar xvf secrets.tar
+# setup ssh
+- which ssh-agent || ( sudo apt-get update -qy && apt-get install --no-install-recommends
+  -qfy openssh-client git )
+- sudo openvpn deploy.ovpn &
+- sleep 30
+- ping -c 4 $REMOTE_SERVER
+- mkdir -p ~/.ssh
+- mv id_rsa ~/.ssh/
+- sudo chmod 600 ~/.ssh/id_rsa
+- ssh-keyscan -H $REMOTE_SERVER > ~/.ssh/known_hosts
+# build binary
+- $SH "go get -v github.com/mike-seagull/backup-opnsense"
+- $SH "env GOOS=freebsd GOARCH=amd64 go build github.com/mike-seagull/backup-opnsense -o /travis/bin/backup-opnsense"
+deploy:
+  skip_cleanup: true
+  provider: script
+  script: bash .travis/deploy.sh
+  on:
+    branch: master
