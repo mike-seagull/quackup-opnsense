@@ -3,9 +3,9 @@ sudo: required
 services:
 - docker
 env:
-- SH="docker exec -t backup-opnsense bash -c"
+- SH="docker exec -t quackup-opnsense bash -c"
 before_install:
-- docker run --detach --name backup-opnsense -v $(pwd):/travis -w /travis -e GOPATH='/travis' golang:1.11-stretch tail -f /dev/null
+- docker run --detach --name quackup-opnsense -v $(pwd):/travis -w /travis -e GOPATH='/travis' golang:1.11-stretch tail -f /dev/null
 - docker ps
 addons:
   apt:
@@ -19,16 +19,16 @@ install:
 - $SH "rm -rf /travis/*"
 script: skip
 after_failure:
-- curl -X POST -d 'message="backup-opnsense build failed"' https://${HOME_API_USER}:${HOME_API_AUTH}@${HOME_API_SERVER}/api/pushover
+- curl -X POST -d 'message="quackup-opnsense build failed"' https://${HOME_API_USER}:${HOME_API_AUTH}@${HOME_API_SERVER}/api/pushover
 after_success:
-- curl -X POST -d 'message="backup-opnsense build successful"' https://${HOME_API_USER}:${HOME_API_AUTH}@${HOME_API_SERVER}/api/pushover
+- curl -X POST -d 'message="quackup-opnsense build successful"' https://${HOME_API_USER}:${HOME_API_AUTH}@${HOME_API_SERVER}/api/pushover
 before_deploy:
 # unpack secrets
 - openssl enc -aes-256-cbc -iv "${SSL_IV}" -K "${SSL_KEY}" -out secrets.tar -in .travis/secrets.enc -d
 - tar xvf secrets.tar
 # build binary
-- $SH "go get -v github.com/mike-seagull/backup-opnsense"
-- $SH "env GOOS=freebsd GOARCH=amd64 go build -v -a -o $GOPATH/bin/backup-opnsense github.com/mike-seagull/backup-opnsense"
+- $SH "go get -v github.com/mike-seagull/quackup-opnsense"
+- $SH "env GOOS=freebsd GOARCH=amd64 go build -v -a -o $GOPATH/bin/quackup-opnsense github.com/mike-seagull/quackup-opnsense"
 # setup ssh
 - which ssh-agent || ( sudo apt-get update -qy && apt-get install --no-install-recommends
   -qfy openssh-client git )

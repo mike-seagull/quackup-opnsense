@@ -7,4 +7,4 @@
 * SERVER_IP = ip to the remote server
 
 <h5>To start a backup</h5>
-<code>backup-opnsense /remote/backup/dir/</code>
+<code>quackup-opnsense /remote/backup/dir/</code>
