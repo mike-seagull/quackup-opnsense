@@ -3,9 +3,8 @@ package main
 import (
 	"github.com/bramvdbogaerde/go-scp"
 	"github.com/bramvdbogaerde/go-scp/auth"
-    "github.com/google/logger"
+	"github.com/apsdehal/go-logger"
 	"golang.org/x/crypto/ssh"
-    "io/ioutil"
 	"os"
 	"strconv"
 	"time"
@@ -15,7 +14,7 @@ import (
  * pushes the OPNsense config file to a remote server using scp
  */
 func scpFile(localFile string, remoteFile string) {
-	log := logger.Init("scpFile", true, false, ioutil.Discard)
+	log, _ := logger.New("scpFile", 0, os.Stdout)
 	log.Info("about to scp backup")
 	SERVER_USER := os.Getenv("SERVER_USER")
 	SERVER_IP := os.Getenv("SERVER_IP")
@@ -40,7 +39,7 @@ func scpFile(localFile string, remoteFile string) {
 }
 
 func main() {
-	log := logger.Init("main", true, false, ioutil.Discard)
+	log, _ := logger.New("main", 0, os.Stdout)
 	log.Info("started")
 	current_time := strconv.FormatInt((time.Now().Local().Unix()), 10) // current unix time
 	args := os.Args[1:]
