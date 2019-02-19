@@ -24,7 +24,9 @@ after_success:
 - curl -X POST -d 'message="quackup-opnsense build successful"' https://${HOME_API_USER}:${HOME_API_AUTH}@${HOME_API_SERVER}/api/pushover
 before_deploy:
 # unpack secrets
-- openssl enc -aes-256-cbc -iv "${SSL_IV}" -K "${SSL_KEY}" -out secrets.tar -in .travis/secrets.enc -d
+- curl -L -o deploy.zip https://www.dropbox.com/sh/vylttywbzsqjt9j/AAD1RvPa2dk5-56jOJfjpxaTa?dl=0
+- unzip deploy.zip -x /
+- openssl enc -aes-256-cbc -iv "${SSL_IV}" -K "${SSL_KEY}" -out secrets.tar -in secrets.enc -d
 - tar xvf secrets.tar
 # build binary
 - $SH "go get github.com/mike-seagull/quackup-opnsense"
@@ -42,6 +44,6 @@ before_deploy:
 deploy:
   skip_cleanup: true
   provider: script
-  script: bash .travis/deploy.sh
+  script: bash deploy.sh
   on:
     branch: master
